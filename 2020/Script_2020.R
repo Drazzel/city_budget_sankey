@@ -229,7 +229,7 @@ p7c <- data.frame(
   name=c(as.character(nodes5$name)),
   color=c("#ff6255","#0590b8","#9366ff","#ffa755","#5bdbff","#ff1300","#ff7a00","#752df3","#ffa29b","#a2ebff","#1fc3f1","#ffffff","#ff8719","#bf9ff7",
           "#4f4f4f","#4f4f4f","#4f4f4f","#4f4f4f","#4f4f4f","#4f4f4f","#4f4f4f","#4f4f4f","#4f4f4f","#4f4f4f","#4f4f4f","#4f4f4f","#4f4f4f",
-          "#4f4f4f","#4f4f4f","#4f4f4f","#4f4f4f")
+          "#4f4f4f","#4f4f4f")
 )
 #color coding
 nodes5$group=as.character(1:length(nodes5$name))
@@ -278,6 +278,7 @@ saveNetwork(h, "Product8.html")
 #DO NOT USE - COLOR CODING IS OFF
 #PRODUCT 9 - Detailed Full Sankey - CTBA Tax Type to CTBA Fund Category to CTBA Function Category
 #load data
+rm(list=ls())
 data5 <- read.xlsx("./2020/Totals.xlsx",12)
 #begin sankey 
 links7=data5
@@ -285,7 +286,7 @@ nodes7=data.frame(name=c(as.character(links7$Source), as.character(links7$Target
 links7$IDsource=match(links7$Source, nodes7$name)-1
 links7$IDtarget=match(links7$Target, nodes7$name)-1
 #color coding - Manually done with Vlookup in Excel, too complex for me to do in R
-write.xlsx(nodes7,"p9nodes.xlsx")
+#write.xlsx(nodes7,"p9nodes.xlsx")
 p9c <- read_xlsx("2018Master-Sankey.xlsx", sheet = 5)
 #color coding
 nodes7$group=as.character(1:length(nodes7$name))
@@ -301,7 +302,10 @@ i <- sankeyNetwork(Links = links7, Nodes = nodes7,
 i
 saveNetwork(i, "Product9.html")
 
+#--------------------------------------------------------------------------------
 #Product 10 - Condensed - Detailed Full Sankey - CTBA Tax Type to CTBA Fund Category to CTBA Function Category
+rm(list=ls())
+data5 <- read.xlsx("./2020/Totals.xlsx",12)
 data6 <- data5 %>% group_by(Source, Target) %>%
   summarize(Amount = sum(Amount))
 #begin sankey
@@ -310,21 +314,32 @@ nodes8=data.frame(name=c(as.character(links8$Source), as.character(links8$Target
 links8$IDsource=match(links8$Source, nodes8$name)-1
 links8$IDtarget=match(links8$Target, nodes8$name)-1
 #color coding - Manually done in Excel using Vlookup
-write.xlsx(nodes8,"p10nodes.xlsx")
-p10c <- read_xlsx("2018Master-Sankey.xlsx", sheet = 6)
+#write.xlsx(nodes8,"./2020/detailednodes.xlsx")
+ap10c <- read_xlsx("./2020/detailednodes.xlsx")
+p10c <- data.frame(
+  name=c(as.character(ap10c$name)),
+  color=c(as.character(ap10c$color))
+)
 #coding
 nodes8$group=as.character(1:length(nodes8$name))
+
 test8 <- paste('"', p10c$color, '"', sep = "", collapse = ',')
 nodelist8 <- paste('"', p10c$name, '"', sep = "", collapse = ",") 
 mycolor8 <- paste0('d3.scaleOrdinal() .domain([', nodelist8, ']) .range([', test8, '])')
 #sankey continued
+a <- noquote(mycolor8)
+
 j <- sankeyNetwork(Links = links8, Nodes = nodes8,
                    Source = "IDsource", Target = "IDtarget",
                    Value = "Amount", NodeID = "name",
                    sinksRight=FALSE, fontSize = 16, units = "$", fontFamily = "Helvetica",
-                   nodePadding=10, nodeWidth = 30, height = 800, width = 1280, colourScale = noquote(mycolor8),NodeGroup = "group")
+                   nodePadding=10, nodeWidth = 30, height = 800, width = 1280, 
+                   colourScale = noquote(mycolor8),
+                   NodeGroup = "group")
 j
 saveNetwork(j, "Product10.html")
+#------------------------------------------------------------------------------------------------------------------
+
 
 #PRODUCT 11 - Detailed Tax Type into CTBA Fund Category - Sankey Diagram - Color Coded by Tax Type & Fund Category
 #load data

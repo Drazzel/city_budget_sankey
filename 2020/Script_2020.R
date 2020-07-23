@@ -311,23 +311,20 @@ data6 <- data5 %>% group_by(Source, Target) %>%
 #begin sankey
 links8=data6
 nodes8=data.frame(name=c(as.character(links8$Source), as.character(links8$Target)) %>% unique())
+nodes8 <- nodes8 %>% arrange(name)
+nodes8$node <- c(1:83)
 links8$IDsource=match(links8$Source, nodes8$name)-1
 links8$IDtarget=match(links8$Target, nodes8$name)-1
 #color coding - Manually done in Excel using Vlookup
 #write.xlsx(nodes8,"./2020/detailednodes.xlsx")
 ap10c <- read_xlsx("./2020/detailednodes.xlsx")
-p10c <- data.frame(
-  name=c(as.character(ap10c$name)),
-  color=c(as.character(ap10c$color))
-)
+ap10c$color <- toupper(ap10c$color)
+ap10c <- ap10c %>% arrange(name)
 #coding
-nodes8$group=as.character(1:length(nodes8$name))
-
-test8 <- paste('"', p10c$color, '"', sep = "", collapse = ',')
-nodelist8 <- paste('"', p10c$name, '"', sep = "", collapse = ",") 
+test8 <- paste('"', ap10c$color, '"', sep = "", collapse = ',')
+nodelist8 <- paste('"', ap10c$name, '"', sep = "", collapse = ",") 
 mycolor8 <- paste0('d3.scaleOrdinal() .domain([', nodelist8, ']) .range([', test8, '])')
 #sankey continued
-a <- noquote(mycolor8)
 
 j <- sankeyNetwork(Links = links8, Nodes = nodes8,
                    Source = "IDsource", Target = "IDtarget",
@@ -335,12 +332,12 @@ j <- sankeyNetwork(Links = links8, Nodes = nodes8,
                    sinksRight=FALSE, fontSize = 16, units = "$", fontFamily = "Helvetica",
                    nodePadding=10, nodeWidth = 30, height = 800, width = 1280, 
                    colourScale = noquote(mycolor8),
-                   NodeGroup = "group")
+                   NodeGroup = "node")
 j
 saveNetwork(j, "Product10.html")
 #------------------------------------------------------------------------------------------------------------------
 
-
+#------------------------------------------------------------------------------------------------------------------
 #PRODUCT 11 - Detailed Tax Type into CTBA Fund Category - Sankey Diagram - Color Coded by Tax Type & Fund Category
 #load data
 data7 <- read_xlsx("2018 Revenue Sources.xlsx")
